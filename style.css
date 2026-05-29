@@ -1,120 +1,253 @@
 body {
+    background-color: #050508;
     margin: 0;
     padding: 0;
-    background-color: #1a1a1a;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    user-select: none;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-.game-container {
+/* GABINETE COMPLETO */
+.arcade-cabinet {
+    background: #0d0d13;
+    border: 5px solid #222233;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(0, 255, 136, 0.1);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* MARQUEE (LETREIRO SUPERIOR) */
+.arcade-marquee {
+    width: 100%;
+    background: #020205;
+    border: 3px solid #00ff88;
+    text-align: center;
+    padding: 12px 0;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+    margin-bottom: 15px;
+    font-family: 'Orbitron', sans-serif;
+}
+.arcade-marquee h1 {
+    color: #fff;
+    margin: 0;
+    font-size: 32px;
+    letter-spacing: 8px;
+    text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+}
+.marquee-sub {
+    color: #00ffff;
+    font-size: 10px;
+    margin-top: 5px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+/* CORPO CENTRAL DO ARCADE */
+.arcade-body {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 15px;
+}
+
+/* CONTEXTO COMPARTILHADO DAS ASAS LATERAIS */
+.cabinet-wing {
+    width: 240px;
+    background: #07070c;
+    border: 3px solid #1a1a2e;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    font-family: 'Orbitron', sans-serif;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+.wing-title {
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 2px solid #1a1a2e;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+/* ASA ESQUERDA: SIMULAÇÃO DE RADAR COM NÉVOA */
+.battle-simulation {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    background: #030305;
+    border: 1px solid #111122;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* Efeito de Neblina Vermelha Externa na asa */
+.sim-fog {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 35px rgba(180, 40, 40, 0.6);
+    animation: simPulseFog 2s infinite alternate;
+}
+.sim-core {
+    width: 30px;
+    height: 30px;
+    background: #ccffff;
+    border-radius: 50%;
+    border: 2px solid #0077ff;
+    box-shadow: 0 0 20px #00ffff;
+}
+.sim-shield {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 4px solid transparent;
+    border-top-color: #00ff88;
+    border-radius: 50%;
+    transform: rotate(45deg);
+}
+/* Inimigos Decorativos na asa esquerda */
+.sim-enemy { position: absolute; }
+.sq-enemy { width: 12px; height: 12px; background: #ff3366; top: 50px; left: 40px; transform: rotate(15deg); }
+.tr-enemy {
+    width: 0; height: 0; 
+    border-left: 8px solid transparent; border-right: 8px solid transparent;
+    border-bottom: 14px solid #ffcc00; top: 120px; right: 40px; transform: rotate(-45deg);
+}
+.h-enemy {
+    width: 12px; height: 12px; background: #ff66cc; bottom: 80px; left: 80px; clip-path: polygon(50% 0%, 100% 35%, 50% 100%, 0% 35%);
+}
+.wing-status {
+    color: #ff3366;
+    font-size: 11px;
+    text-align: center;
+    margin-top: auto;
+    text-shadow: 0 0 5px #ff3366;
+    animation: simPulseFog 1s infinite alternate;
+}
+
+/* ASA DIREITA: MANUAL DO USUÁRIO */
+.manual-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    max-height: 440px;
+    padding-right: 5px;
+}
+/* Customizar barra de rolagem do manual */
+.manual-scroll::-webkit-scrollbar { width: 4px; }
+.manual-scroll::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 2px; }
+
+.manual-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.shape-info {
+    color: #aaa;
+    font-size: 10px;
+    line-height: 14px;
+}
+.shape-info strong { color: #fff; font-size: 11px; }
+
+/* ÍCONES DO MANUAL VIA CSS */
+.shape-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.sq-icon { background: #ff3366; }
+.tr-icon {
+    width: 0; height: 0; 
+    border-left: 9px solid transparent; border-right: 9px solid transparent;
+    border-bottom: 16px solid #ffcc00;
+}
+.h-icon { background: #ff66cc; clip-path: polygon(50% 20%, 80% 0%, 100% 30%, 50% 90%, 0% 30%, 20% 0%); }
+.bm-icon {
+    border-left: 4px solid #8B4513; border-top: 4px solid #8B4513;
+    width: 12px; height: 12px; transform: rotate(45deg);
+}
+.pl-icon { height: 4px; background: #e0e0e0; box-shadow: 0 0 5px #fff; }
+.hx-icon { background: #9933ff; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+.st-icon { background: #ffffff; clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); }
+
+/* CONTAINER DO CANVAS (CENTRO) */
+.canvas-container {
     position: relative;
     width: 600px;
     height: 600px;
+    border: 3px solid #1a1a2e;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
 }
-
 canvas {
-    background-color: #111;
-    border: 2px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    background-color: #000;
     display: block;
 }
 
-/* Camada das Telas de Menu (Início e Fim) */
-.overlay {
+/* INTERFACES DE TELAS INTERNAS */
+.screen {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(11, 11, 11, 0.92);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(5, 5, 10, 0.85);
+    backdrop-filter: blur(4px);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    font-family: 'Orbitron', sans-serif;
     color: white;
-    text-align: center;
     z-index: 10;
 }
-
-/* Classe utilitária para esconder as telas */
-.hidden {
-    display: none !important;
-}
-
-h1 {
-    font-size: 42px;
-    letter-spacing: 3px;
+.screen h2 {
+    font-size: 36px; 
+    color: #ff3366; /* Mudado de verde para vermelho */
     margin-bottom: 10px;
-    color: #00ff88;
-    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    text-shadow: 0 0 15px #ff3366; /* Neon vermelho */
+    letter-spacing: 2px;
 }
-
-/* Título de Game Over em vermelho/rosa */
-.alert-title {
-    color: #ff3366;
-    text-shadow: 0 0 10px rgba(255, 51, 102, 0.3);
-}
-
-p {
-    color: #aaa;
-    font-size: 18px;
-    margin-bottom: 30px;
-    padding: 0 20px;
-}
-
-.instructions {
-    background-color: rgba(255, 255, 255, 0.05);
-    padding: 15px 25px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    max-width: 80%;
-    margin-bottom: 40px;
-}
-
-.instructions p {
-    margin: 0;
-    color: #ddd;
-}
-
+.screen p { font-size: 14px; color: #888; margin-bottom: 30px; text-align: center; max-width: 400px; line-height: 22px; }
 button {
-    background-color: #0077ff;
-    color: white;
-    border: none;
-    padding: 15px 40px;
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    border-radius: 5px;
-    cursor: pointer;
+    background: transparent; border: 2px solid #00ffff; color: #00ffff;
+    padding: 12px 30px; font-family: 'Orbitron', sans-serif; font-size: 16px;
+    font-weight: bold; cursor: pointer; border-radius: 4px;
+    text-shadow: 0 0 5px #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.2);
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 119, 255, 0.4);
+}
+button:hover { background: #00ffff; color: #000; box-shadow: 0 0 20px #00ffff; }
+.hidden { display: none !important; }
+
+/* FOOTER (PORTA DE MOEDAS) */
+.arcade-footer {
+    width: 100%;
+    height: 50px;
+    background: #14141f;
+    margin-top: 15px;
+    border-top: 3px solid #222233;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.coin-door {
+    border: 2px solid #333; padding: 4px 15px; background: #050508; border-radius: 3px;
+}
+.coin-slot {
+    font-family: 'Orbitron', sans-serif; font-size: 11px; color: #ff3333;
+    text-shadow: 0 0 5px #ff3333; font-weight: bold; letter-spacing: 1px;
 }
 
-button:hover {
-    background-color: #00ff88;
-    color: #111;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
-}
-
-/* Estilo extra para o botão de reiniciar */
-#restartButton {
-    background-color: #333;
-    border: 1px solid #555;
-    box-shadow: none;
-}
-
-#restartButton:hover {
-    background-color: #ff3366;
-    color: white;
-    border-color: #ff3366;
-    box-shadow: 0 6px 20px rgba(255, 51, 102, 0.4);
-}
-
-button:active {
-    transform: translateY(1px);
+/* ANIMAÇÃO DE PULSAR DA NEBLINA DE DECORAÇÃO */
+@keyframes simPulseFog {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
 }

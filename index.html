@@ -3,28 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defensor Orbital</title>
+    <title>Defensor Orbital - Arcade Edition</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="game-container">
-        <div id="startScreen" class="overlay">
+    <div class="arcade-cabinet">
+        <div class="arcade-marquee">
             <h1>DEFENSOR ORBITAL</h1>
-            <p>Proteja o núcleo azul dos projéteis geométricos!</p>
-            <div class="instructions">
-                <p><strong>Como Jogar:</strong> Mova o mouse para girar o escudo verde e rebater os ataques.</p>
+            <div class="marquee-sub">SISTEMA DE DEFESA DE NÚCLEO v2.0</div>
+        </div>
+
+        <div class="arcade-body">
+            
+            <div class="cabinet-wing left-wing">
+                <div class="wing-title">RADAR DE PROJEÇÃO</div>
+                <div class="battle-simulation">
+                    <div class="sim-fog"></div>
+                    <div class="sim-core"></div>
+                    <div class="sim-shield"></div>
+                    <div class="sim-enemy sq-enemy"></div>
+                    <div class="sim-enemy tr-enemy"></div>
+                    <div class="sim-enemy h-enemy"></div>
+                </div>
+                <div class="wing-status">STATUS: NÚCLEO EM RISCO</div>
             </div>
-            <button id="startButton">JOGAR</button>
+
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+                <div id="startScreen" class="screen">
+                    <h2>DEFENSOR ORBITAL</h2>
+                    <p>Proteja o núcleo central rotacionando o escudo com o mouse.</p>
+                    <button id="startButton">INICIAR REATOR</button>
+                </div>
+
+                <div id="gameOverScreen" class="screen hidden">
+                    <h2>SISTEMA CORROMPIDO</h2>
+                    <p id="gameOverText"></p>
+                    <button id="restartButton">REINICIAR SISTEMA</button>
+                </div>
+            </div>
+
+            <div class="cabinet-wing right-wing">
+                <div class="wing-title">DATABASE DE AMEAÇAS</div>
+                <div class="manual-scroll">
+                    
+                    <div class="manual-item">
+                        <div class="shape-icon sq-icon"></div>
+                        <div class="shape-info"><strong>Quadrado Vermelho</strong><br>Avanço direto padrão em direção ao centro.</div>
+                    </div>
+
+                    <div class="manual-item">
+                        <div class="shape-icon tr-icon"></div>
+                        <div class="shape-info"><strong>Triângulo Amarelo</strong><br>Orbita ao redor do reator enquanto fecha o cerco.</div>
+                    </div>
+
+                    <div class="manual-item">
+                        <div class="shape-icon h-icon"></div>
+                        <div class="shape-info"><strong>Coração Rosa</strong><br>Aproxima-se, espreita e realiza um estocada veloz.</div>
+                    </div>
+
+                    <div class="manual-item">
+                        <div class="shape-icon bm-icon"></div>
+                        <div class="shape-info"><strong>Bumerangue Marrom</strong><br>Fica fantasma na ida e ataca fisicamente apenas na volta.</div>
+                    </div>
+
+                    <div class="manual-item">
+                        <div class="shape-icon pl-icon"></div>
+                        <div class="shape-info"><strong>Linha Pálida</strong><br>Furtiva. Passa longos períodos invisível no escuro.</div>
+                    </div>
+
+                    <div class="manual-item">
+                        <div class="shape-icon hx-icon"></div>
+                        <div class="shape-info"><strong>Hexágono Roxo</strong><br>Fecha-se ao redor de você. Defenda a linha brilhante.</div>
+                    </div>
+
+                    <div class="manual-item">
+                        <div class="shape-icon st-icon"></div>
+                        <div class="shape-info"><strong>Estrela Branca</strong><br>Gera um clone holográfico espelhado para te confundir.</div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
-        <div id="gameOverScreen" class="overlay hidden">
-            <h1 class="alert-title">FIM DE JOGO</h1>
-            <p id="gameOverText">O núcleo foi destruído! você ganhou 0 pontos.</p>
-            <button id="restartButton">TENTAR NOVAMENTE</button>
+        <div class="arcade-footer">
+            <div class="coin-door">
+                <div class="coin-slot">25¢ INSERT COIN</div>
+            </div>
         </div>
-
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
     </div>
 
     <script src="script.js"></script>
