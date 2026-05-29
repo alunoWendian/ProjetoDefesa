@@ -8,7 +8,24 @@
 </head>
 <body>
 
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <div class="game-container">
+        <div id="startScreen" class="overlay">
+            <h1>DEFENSOR ORBITAL</h1>
+            <p>Proteja o núcleo azul dos projéteis geométricos!</p>
+            <div class="instructions">
+                <p><strong>Como Jogar:</strong> Mova o mouse para girar o escudo verde e rebater os ataques.</p>
+            </div>
+            <button id="startButton">JOGAR</button>
+        </div>
+
+        <div id="gameOverScreen" class="overlay hidden">
+            <h1 class="alert-title">FIM DE JOGO</h1>
+            <p id="gameOverText">O núcleo foi destruído! você ganhou 0 pontos.</p>
+            <button id="restartButton">TENTAR NOVAMENTE</button>
+        </div>
+
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+    </div>
 
     <script src="script.js"></script>
 </body>
