@@ -5,68 +5,133 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 const playerRadius = 20;
 const shieldDistance = 40; 
-const shieldLength = 0.5;  // Largura do escudo em radianos (aprox. 30 graus para cada lado)
+const shieldLength = 0.5; 
 
 let mouseX = centerX;
 let mouseY = centerY;
 
-// Criamos uma função para gerar um projétil vindo na direção correta do centro
+let lives = 3;
+let score = 0;
+let projectiles = [];
+let gameActive = true;
+
+let spawnRate = 2000; 
+let lastSpawnTime = 0;
+
 function createProjectile() {
-    // Escolhe um ângulo aleatório de onde o projétil vai nascer (0 a 360 graus)
     let spawnAngle = Math.random() * Math.PI * 2;
-    
-    // Coloca ele um pouco para fora das bordas do canvas (distância de 400 pixels do centro)
     let spawnDistance = 400; 
+    
+    // Agora sorteamos entre 3 tipos: 50% Quadrado, 30% Triângulo, 20% Coração
+    let rand = Math.random();
+    let type = 'square';
+    if (rand > 0.5 && rand <= 0.8) type = 'triangle';
+    if (rand > 0.8) type = 'heart';
+
     let startX = centerX + Math.cos(spawnAngle) * spawnDistance;
     let startY = centerY + Math.sin(spawnAngle) * spawnDistance;
-
-    // Calcula a direção em direção ao centro (vetor unitário)
     let angleToCenter = Math.atan2(centerY - startY, centerX - startX);
-    let velocityX = Math.cos(angleToCenter) * 2; // '2' é a velocidade
-    let velocityY = Math.sin(angleToCenter) * 2;
 
-    return {
-        x: startX,
-        y: startY,
-        vx: velocityX,
-        vy: velocityY,
-        size: 15,
-        // Guarda o ângulo de aproximação para testar a colisão depois
-        angle: Math.atan2(startY - centerY, startX - centerX)
-    };
+    if (type === 'square') {
+        return {
+            type: 'square',
+            x: startX,
+            y: startY,
+            vx: Math.cos(angleToCenter) * 2.5,
+            vy: Math.sin(angleToCenter) * 2.5,
+            size: 15,
+            angle: Math.atan2(startY - centerY, startX - centerX)
+        };
+    } else if (type === 'triangle') {
+        return {
+            type: 'triangle',
+            distance: spawnDistance,
+            angle: Math.atan2(startY - centerY, startX - centerX),
+            orbitSpeed: 0.02,
+            approachSpeed: 1.2,
+            size: 18,
+            x: startX,
+            y: startY
+        };
+    } else if (type === 'heart') {
+        return {
+            type: 'heart',
+            x: startX,
+            y: startY,
+            angle: Math.atan2(startY - centerY, startX - centerX),
+            angleToCenter: angleToCenter,
+            state: 'moving_in', // Estados: 'moving_in', 'waiting', 'dash'
+            timer: 0,           // Contador de quadros para a pausa
+            size: 15,
+            speed: 1.5          // Velocidade inicial lenta
+        };
+    }
 }
 
-// Inicializa o primeiro projétil
-let projectile = createProjectile();
-
-// Atualiza o mouse
 canvas.addEventListener("mousemove", (event) => {
     const rect = canvas.getBoundingClientRect();
     mouseX = event.clientX - rect.left;
     mouseY = event.clientY - rect.top;
 });
 
-// Normaliza ângulos para ficarem entre -PI e PI (ajuda a comparar os ângulos depois)
 function normalizeAngle(angle) {
     while (angle > Math.PI) angle -= Math.PI * 2;
     while (angle < -Math.PI) angle += Math.PI * 2;
     return angle;
 }
 
-function update() {
+function drawTriangle(x, y, size, angle) {
+    ctx.fillStyle = "#ffcc00";
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(angle + Math.PI) * size, y + Math.sin(angle + Math.PI) * size);
+    ctx.lineTo(x + Math.cos(angle + 0.5) * size, y + Math.sin(angle + 0.5) * size);
+    ctx.lineTo(x + Math.cos(angle - 0.5) * size, y + Math.sin(angle - 0.5) * size);
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Desenha o formato de coração usando curvas matemáticas
+function drawHeart(x, y, size) {
+    ctx.fillStyle = "#ff66cc"; // Rosa
+    ctx.beginPath();
+    // Ponto inferior do coração
+    ctx.moveTo(x, y + size); 
+    // Curva da esquerda
+    ctx.bezierCurveTo(x - size, y - size/2, x - size, y - size * 1.5, x, y - size/3);
+    // Curva da direita
+    ctx.bezierCurveTo(x + size, y - size * 1.5, x + size, y - size/2, x, y + size);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawUI() {
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText(`Vidas: ${lives}`, 20, 40);
+    ctx.fillText(`Pontos: ${score}`, 20, 70);
+}
+
+function update(currentTime) {
+    if (!gameActive) return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. ÂNGULO DO ESCUDO (baseado no mouse)
     let shieldAngle = Math.atan2(mouseY - centerY, mouseX - centerX);
 
-    // 2. DESENHAR JOGADOR (Bola Azul)
+    if (currentTime - lastSpawnTime > spawnRate) {
+        projectiles.push(createProjectile());
+        lastSpawnTime = currentTime;
+        if (spawnRate > 800) spawnRate -= 40; 
+    }
+
+    // Desenhar Jogador
     ctx.beginPath();
     ctx.arc(centerX, centerY, playerRadius, 0, Math.PI * 2);
     ctx.fillStyle = "#0077ff";
     ctx.fill();
     ctx.closePath();
 
-    // 3. DESENHAR ESCUDO (Linha Verde)
+    // Desenhar Escudo
     ctx.beginPath();
     ctx.arc(centerX, centerY, shieldDistance, shieldAngle - shieldLength, shieldAngle + shieldLength);
     ctx.strokeStyle = "#00ff88";
@@ -74,36 +139,88 @@ function update() {
     ctx.stroke();
     ctx.closePath();
 
-    // 4. ATUALIZAR E DESENHAR PROJÉTIL
-    projectile.x += projectile.vx;
-    projectile.y += projectile.vy;
+    // Loop de Projéteis
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        let p = projectiles[i];
 
-    ctx.fillStyle = "#ff3366";
-    ctx.fillRect(projectile.x - projectile.size/2, projectile.y - projectile.size/2, projectile.size, projectile.size);
+        // --- ATUALIZAÇÃO BASEADA NO TIPO ---
+        if (p.type === 'square') {
+            p.x += p.vx;
+            p.y += p.vy;
+            ctx.fillStyle = "#ff3366";
+            ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+        } 
+        else if (p.type === 'triangle') {
+            p.angle += p.orbitSpeed;
+            p.distance -= p.approachSpeed;
+            p.x = centerX + Math.cos(p.angle) * p.distance;
+            p.y = centerY + Math.sin(p.angle) * p.distance;
+            drawTriangle(p.x, p.y, p.size, p.angle);
+        }
+        else if (p.type === 'heart') {
+            let distanceToCenter = Math.hypot(p.x - centerX, p.y - centerY);
 
-    // 5. DETECÇÃO DE COLISÃO
-    // Calcula a distância atual do projétil até o centro
-    let distanceToCenter = Math.hypot(projectile.x - centerX, projectile.y - centerY);
+            // Máquina de estados do Coração
+            if (p.state === 'moving_in') {
+                // Avança um pouco para dentro da tela
+                p.x += Math.cos(p.angleToCenter) * p.speed;
+                p.y += Math.sin(p.angleToCenter) * p.speed;
+                
+                // Quando chega a uma distância de 200px do centro, ele para
+                if (distanceToCenter <= 220) {
+                    p.state = 'waiting';
+                }
+            } 
+            else if (p.state === 'waiting') {
+                p.timer += 1;
+                // Fica parado por cerca de 1 segundo (60 quadros)
+                if (p.timer >= 60) {
+                    p.state = 'dash';
+                    p.speed = 5; // Velocidade de arranque bem alta!
+                }
+            } 
+            else if (p.state === 'dash') {
+                // Arranca em direção ao centro
+                p.x += Math.cos(p.angleToCenter) * p.speed;
+                p.y += Math.sin(p.angleToCenter) * p.speed;
+            }
 
-    // Se o projétil atingir o raio do escudo (40px)
-    if (distanceToCenter <= shieldDistance + 5 && distanceToCenter >= shieldDistance - 5) {
-        
-        // Diferença entre o ângulo do escudo e o ângulo de onde o projétil está vindo
-        let angleDiff = normalizeAngle(shieldAngle - projectile.angle);
+            // Atualiza o ângulo constante de onde ele está em relação ao centro (para a colisão do escudo)
+            p.angle = Math.atan2(p.y - centerY, p.x - centerX);
 
-        // Se o projétil bater na área protegida pelo escudo
-        if (Math.abs(angleDiff) <= shieldLength) {
-            // O escudo defendeu! Reseta o projétil para vir um novo
-            projectile = createProjectile();
+            drawHeart(p.x, p.y, p.size);
+        }
+
+        // --- DETECÇÃO DE DISTÂNCIA E COLISÕES ---
+        let distanceToCenter = Math.hypot(p.x - centerX, p.y - centerY);
+
+        // Colisão com o ESCUDO
+        if (distanceToCenter <= shieldDistance + 6 && distanceToCenter >= shieldDistance - 6) {
+            let angleDiff = normalizeAngle(shieldAngle - p.angle);
+
+            if (Math.abs(angleDiff) <= shieldLength) {
+                // Corações dão 30 pontos!
+                score += p.type === 'heart' ? 30 : (p.type === 'triangle' ? 25 : 10); 
+                projectiles.splice(i, 1);
+                continue;
+            }
+        }
+
+        // Colisão com a BOLA AZUL
+        if (distanceToCenter <= playerRadius) {
+            lives--;
+            projectiles.splice(i, 1);
+
+            if (lives <= 0) {
+                gameActive = false;
+                alert(`Game Over! Pontuação final: ${score}`);
+                window.location.reload();
+            }
         }
     }
 
-    // Se o projétil passar direto e atingir a bola azul, reinicia o projétil por enquanto
-    if (distanceToCenter <= playerRadius) {
-        projectile = createProjectile();
-    }
-
+    drawUI();
     requestAnimationFrame(update);
 }
 
-update();
+requestAnimationFrame(update);
